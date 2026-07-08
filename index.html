@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dickeating 检测 (极简版)</title>
+    <style>
+        body { background-color: #1e1e1e; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .container { background-color: #2d2d2d; padding: 30px; border-radius: 15px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.5); border: 2px solid #ff9800; }
+        h1 { color: #ff9800; font-size: 22px; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .step { margin: 20px 0; min-height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .question { font-size: 18px; margin-bottom: 15px; font-weight: bold; }
+        .options { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .btn { background: #555; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: 0.2s; font-size: 14px; }
+        .btn:hover { background: #777; }
+        .result-box { display: none; margin-top: 20px; padding: 20px; background: #111; border-radius: 10px; border: 1px solid #00e5ff; }
+        .result-text { font-size: 28px; font-weight: bold; color: #00e5ff; margin: 10px 0; }
+        .reset-btn { background: #ff9800; color: #000; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .progress { font-size: 13px; color: #888; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>dickeating 性别（性取向）测算</h1>
+    <div class="progress" id="progressDisplay">第 1 / 6 题</div>
+    <div class="step" id="questionArea">
+        <div class="question" id="questionText">加载中...</div>
+        <div class="options" id="optionsContainer"></div>
+    </div>
+    <div class="result-box" id="resultArea">
+        <div>根据 dickeating 的最新算法（dickeating ofucks 2.0)，您是：</div>
+        <div class="result-text" id="finalResult">计算中...</div>
+        <button class="reset-btn" onclick="location.reload()">重新投胎</button>
+    </div>
+</div>
+
+<script>
+    // 6个极度日常的无聊问题
+    const quizData = [
+        { q: "你早上一般吃什么？", o: ["常温种猪精液", "牛奶（sperm）", "dick", "逼"] },
+        { q: "你周末最喜欢干什么？", o: ["睡大觉", "打游戏", "起飞", "挖矿"] },
+        { q: "你晚上睡前通常干嘛？", o: ["刷手机", "看书", "发呆", "做深蹲"] },
+        { q: "你暑假最想去哪？", o: ["叙利亚", "伊拉克", "乌克兰", "十七班"] },
+        { q: "你最喜欢的饮料？", o: ["常温种猪精液", "尿", "逼水", "豆汁儿"] },
+        { q: "你现在最想对 dickeating 说什么？", o: ["操你妈", "滚", "你是个神", "放我出去"] }
+    ];
+
+    // 终极结局池
+    const results = ["双性恋", "无性恋", "沃尔玛购物袋", "Gay", "Lesbian", "MtF", "FtM"];
+    let currentIndex = 0;
+
+    function loadQuestion() {
+        document.getElementById('progressDisplay').innerText = `第 ${currentIndex + 1} / 6 题`;
+        if (currentIndex >= quizData.length) {
+            return showResult();
+        }
+        let data = quizData[currentIndex];
+        document.getElementById('questionText').innerText = data.q;
+        let html = '';
+        data.o.forEach(t => { html += `<button class="btn" onclick="nextStep()">${t}</button>`; });
+        document.getElementById('optionsContainer').innerHTML = html;
+    }
+
+    function nextStep() {
+        currentIndex++;
+        loadQuestion();
+    }
+
+    function showResult() {
+        document.getElementById('questionArea').style.display = 'none';
+        document.getElementById('progressDisplay').style.display = 'none';
+        let res = results[Math.floor(Math.random() * results.length)];
+        document.getElementById('finalResult').innerText = res;
+        document.getElementById('resultArea').style.display = 'block';
+    }
+
+    loadQuestion();
+</script>
+</body>
+          </html>
