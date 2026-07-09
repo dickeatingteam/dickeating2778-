@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>deepfuck生物学考试</title>
+    <style>
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; margin: 0; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 2px solid #ff9800; }
+        h1 { text-align: center; color: #ff9800; border-bottom: 2px dashed #eee; padding-bottom: 15px; }
+        .paper { font-size: 15px; line-height: 1.6; color: #333; }
+        .paper .q-block { margin-bottom: 20px; border-left: 3px solid #eee; padding-left: 15px; }
+        .paper .options { margin: 5px 0 5px 15px; }
+        
+        .answer-sheet { margin-top: 40px; border-top: 4px double #ff9800; padding-top: 30px; }
+        .header-info { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; background: #f8f8f8; padding: 15px; border-radius: 8px; }
+        .header-info label { display: flex; align-items: center; gap: 10px; font-weight: bold; }
+        .header-info input { border: 1px solid #ccc; border-radius: 4px; padding: 8px; width: 200px; }
+        .header-info input:focus { outline: 2px solid #ff9800; border: none; }
+
+        .answer-block { margin: 15px 0; }
+        .choice-answers label { margin-right: 15px; cursor: pointer; font-weight: normal;}
+        .textarea-answers textarea { width: 100%; height: 50px; border: 1px solid #ccc; border-radius: 4px; padding: 5px; resize: vertical; margin-top: 5px; }
+
+        .btn-group { margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+        .btn { padding: 12px 30px; border: none; border-radius: 25px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; }
+        .btn-submit { background: #00e5ff; color: #000; }
+        .btn-submit:hover { background: #00b8d4; }
+        .btn-reset { background: #ff9800; color: #000; }
+        .btn-reset:hover { background: #f57c00; }
+
+        #resultBox { display: none; margin-top: 20px; padding: 20px; background: #1e1e1e; color: #fff; border-radius: 10px; border: 1px solid #00e5ff; text-align: center; }
+        .score-text { font-size: 28px; color: #00e5ff; margin: 10px 0; }
+        .download-link { margin-top: 15px; display: inline-block; color: #ff9800; text-decoration: underline; cursor: pointer; }
+        .anti-code { color: #888; font-size: 14px; margin-top: 10px; border-top: 1px dashed #444; padding-top: 10px;}
+        .sub-score-detail { font-size: 14px; color: #aaa; text-align: left; margin-top: 15px; background: #222; padding: 10px; border-radius: 5px;}
+
+        @media (max-width: 600px) {
+            .header-info { flex-direction: column; gap: 10px; }
+            .header-info input { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+<div class="container" id="examPaper">
+    <h1>dickeating ofucks 2.0 生物机考</h1>
+
+    <!-- 试卷部分 -->
+    <div class="paper">
+        <p><strong>一、选择题（每小题3分，共15分。每题只有一个选项符合题意。）</strong></p>
+        <div class="q-block">
+            <p><strong>1.</strong> 细胞是生命活动的基本单位。下列关于细胞结构的描述，正确的是（　）</p>
+            <div class="options">A. 所有细胞都含有细胞壁<br>B. 细胞膜主要由脂质和蛋白质组成<br>C. 所有的细胞都有细胞核<br>D. 光镜下可清晰观察到核糖体</div>
+        </div>
+        <div class="q-block">
+            <p><strong>2.</strong> 酶是活细胞产生的具有催化作用的有机物。下列关于酶的特性，正确的是（　）</p>
+            <div class="options">A. 高温、强酸或强碱都会使酶永久失活<br>B. 酶能为化学反应提供活化能<br>C. 过氧化氢酶只能催化过氧化氢分解，是高效性的体现<br>D. 酶只能在细胞内发挥作用</div>
+        </div>
+        <div class="q-block">
+            <p><strong>3.</strong> 细胞的生命活动离不开能量。下列关于细胞呼吸的叙述，正确的是（　）</p>
+            <div class="options">A. 葡萄糖在线粒体中被彻底分解为CO₂和H₂O<br>B. 有氧呼吸第一阶段在细胞质基质中完成<br>C. 有氧呼吸三个阶段都在生物膜上完成<br>D. 呼吸作用释放的能量全部储存在ATP中</div>
+        </div>
+        <div class="q-block">
+            <p><strong>4.</strong> 真核细胞的遗传物质是DNA。下列关于DNA的叙述，正确的是（　）</p>
+            <div class="options">A. DNA和RNA的五碳糖完全相同<br>B. 基因通过转录和翻译指导蛋白质合成<br>C. DNA复制有A-T配对，转录时无U-A配对<br>D. tRNA主要存在于细胞核中</div>
+        </div>
+        <div class="q-block">
+            <p><strong>5.</strong> 物质跨膜运输是细胞最基本的生命活动。下列关于水进出细胞的叙述，正确的是（　）</p>
+            <div class="options">A. 水分子必须依赖载体蛋白<br>B. 血浆渗透压降低，红细胞会吸水涨破<br>C. 影响水进出细胞的唯一因素是浓度差<br>D. 水一定是从低浓度一侧到高浓度一侧</div>
+        </div>
+
+        <p><strong>二、非选择题（共2小题，共15分。）</strong></p>
+        <div class="q-block">
+            <p><strong>6.（7分）【遗传学与多基因关联分析】</strong><br>
+            科学研究表明，人类复杂行为特征受多基因和环境因素共同影响。某科研团队定位了一个常染色体基因位点（A/a）。</p>
+            <p>（1）已知该隐性基因（a）的基因频率为1/50（0.02），计算携带者（Aa）在正常人群中的频率。（2分）</p>
+            <p>（2）父亲（Aa）与母亲（Aa）二胎，计算第二胎呈现特定倾向（aa）的概率。（2分）</p>
+            <p>（3）若aa不繁衍后代，a基因仍存在，请从“杂合子优势”角度推测原因。（3分）</p>
+        </div>
+        <div class="q-block">
+            <p><strong>7.（8分）【传染病传播与细菌耐药性】</strong><br>
+            耐药基因可通过质粒在细菌间水平转移。</p>
+            <p>（1）不同致病菌相互接触，最可能通过哪种途径发生基因交流？（2分）</p>
+            <p>（2）R₀为5，免疫接种达到80%，有效再生数（R）为多少？（2分）</p>
+            <p>（3）简述人类研发新药与细菌产生耐药性之间的协同进化关系。（4分）</p>
+        </div>
+    </div>
+
+    <!-- 答题卡部分 -->
+    <div class="answer-sheet" id="answerSheet">
+        <h2>dickeating 生物考场答题卡</h2>
+        <div class="header-info">
+            <label>准考证号：<input type="text" id="examId" value="78912778114514" readonly></label>
+            <label>考生姓名：<input type="text" id="stuName" placeholder="输入你的赛博代号"></label>
+        </div>
+
+        <div class="answer-block choice-answers">
+            <p><strong>选择题（请勾选）</strong></p>
+            <p>1. <label><input type="radio" name="q1" value="A"> A</label> <label><input type="radio" name="q1" value="B"> B</label> <label><input type="radio" name="q1" value="C"> C</label> <label><input type="radio" name="q1" value="D"> D</label></p>
+            <p>2. <label><input type="radio" name="q2" value="A"> A</label> <label><input type="radio" name="q2" value="B"> B</label> <label><input type="radio" name="q2" value="C"> C</label> <label><input type="radio" name="q2" value="D"> D</label></p>
+            <p>3. <label><input type="radio" name="q3" value="A"> A</label> <label><input type="radio" name="q3" value="B"> B</label> <label><input type="radio" name="q3" value="C"> C</label> <label><input type="radio" name="q3" value="D"> D</label></p>
+            <p>4. <label><input type="radio" name="q4" value="A"> A</label> <label><input type="radio" name="q4" value="B"> B</label> <label><input type="radio" name="q4" value="C"> C</label> <label><input type="radio" name="q4" value="D"> D</label></p>
+            <p>5. <label><input type="radio" name="q5" value="A"> A</label> <label><input type="radio" name="q5" value="B"> B</label> <label><input type="radio" name="q5" value="C"> C</label> <label><input type="radio" name="q5" value="D"> D</label></p>
+        </div>
+
+        <div class="answer-block textarea-answers">
+            <p><strong>非选择题（请手打或复制粘贴答案，得分以关键词匹配为准）</strong></p>
+            <p>6.（1）<textarea id="sa_1" placeholder="写出计算结果（如：2/51 或 0.039）"></textarea></p>
+            <p>6.（2）<textarea id="sa_2" placeholder="写出百分比（如：25%）"></textarea></p>
+            <p>6.（3）<textarea id="sa_3" placeholder="推测原因（出现‘杂合子优势’等关键词可得3分）"></textarea></p>
+            <p>7.（1）<textarea id="sa_4" placeholder="写出途径名称（如：接合）"></textarea></p>
+            <p>7.（2）<textarea id="sa_5" placeholder="写出数值（如：1.0）"></textarea></p>
+            <p>7.（3）<textarea id="sa_6" placeholder="协同进化关系简述（出现‘协同进化’等关键词可得4分）"></textarea></p>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-submit" onclick="submitExam()">赛博交卷 & 生成全科报告</button>
+            <button class="btn btn-reset" onclick="location.reload()">重新投胎</button>
+        </div>
+
+        <div id="resultBox">
+            <div>系统已完成全卷自动批改！</div>
+            <div class="score-text">考生：<span id="nameDisplay" style="color:#fff;">匿名</span></div>
+            <div style="font-size: 20px; color:#00e5ff; margin: 10px 0;">
+                选择题：<span id="scoreObj" style="color:#ff9800;">0</span> / 15<br>
+                主观题：<span id="scoreSub" style="color:#ff9800;">0</span> / 15<br>
+                总计：<span id="scoreTotal" style="color:#fff; font-size: 35px;">0</span> / 30
+            </div>
+            <div class="sub-score-detail" id="subDetailDisplay">主观题详细得分：待生成...</div>
+            <div class="anti-code" id="antiCodeDisplay">防伪码正在生成中...</div>
+            <div style="margin-top:15px;">
+                <span class="download-link" onclick="downloadData()">📥 点击下载带有完整打分及防伪验证的最终报告</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 客观题标准答案
+    const answers = { q1: 'B', q2: 'A', q3: 'B', q4: 'B', q5: 'B' };
+    
+    // 主观题阅卷规则（关键词与对应满分，只要包含关键词即给满分）
+    const subjectiveRules = [
+        { id: "sa_1", maxScore: 2, keywords: ["2/51", "0.039", "2/51或0.039"] },
+        { id: "sa_2", maxScore: 2, keywords: ["25%", "25", "0.25"] },
+        { id: "sa_3", maxScore: 3, keywords: ["杂合子优势", "杂合子", "优势", "适应性"] },
+        { id: "sa_4", maxScore: 2, keywords: ["接合", "①", "接合①"] },
+        { id: "sa_5", maxScore: 2, keywords: ["1.0", "1", "1.0/1"] },
+        { id: "sa_6", maxScore: 4, keywords: ["协同进化", "相互选择", "共同进化", "魔高一尺"] }
+    ];
+
+    let reportData = {};
+
+    function generateAntiFakeCode(name, id, objScore, subScore) {
+        const raw = `${name}${id}${objScore}${subScore}${Date.now()}`;
+        const encodeStr = btoa(raw).substring(0, 12).replace(/=/g, 'X').toUpperCase();
+        const randomPart = String(Math.floor(Math.random() * 10000)).padStart(4, '0');
+        return `DK-${encodeStr}-${randomPart}`;
+    }
+
+    function submitExam() {
+        const name = document.getElementById('stuName').value || "匿名赛博精神病";
+        const examId = document.getElementById('examId').value;
+
+        // 1. 批改选择题
+        let objScore = 0;
+        let selectedAnswers = {};
+        for(let i=1; i<=5; i++) {
+            let qName = 'q' + i;
+            let radios = document.getElementsByName(qName);
+            let userVal = "";
+            for(let r of radios) {
+                if(r.checked) { userVal = r.value; break; }
+            }
+            selectedAnswers[qName] = userVal || "未作答";
+            if(userVal === answers[qName]) objScore += 3;
+        }
+
+        // 2. 批改主观题（关键字匹配法）
+        let subScore = 0;
+        let subDetails = {};
+        subjectiveRules.forEach(rule => {
+            let ta = document.getElementById(rule.id);
+            let userText = ta ? ta.value : "";
+            let earned = 0;
+            // 只要发现关键词，且用户写了字，就给满分（为了高考模拟，暂不考虑半对）
+            if(userText.trim() !== "") {
+                let hasKeyword = rule.keywords.some(kw => userText.includes(kw));
+                if(hasKeyword) {
+                    earned = rule.maxScore;
+                }
+            }
+            subScore += earned;
+            subDetails[rule.id] = `${earned}/${rule.maxScore}`;
+        });
+
+        // 3. 生成防伪码和报告
+        const antiCode = generateAntiFakeCode(name, examId, objScore, subScore);
+        const totalScore = objScore + subScore;
+
+        // 4. 整理报告数据
+        reportData = {
+            "准考证号": examId,
+            "考生姓名": name,
+            "答题记录": {
+                "选择题": selectedAnswers,
+                "大题记录": {
+                    "6(1)": document.getElementById("sa_1").value || "未作答",
+                    "6(2)": document.getElementById("sa_2").value || "未作答",
+                    "6(3)": document.getElementById("sa_3").value || "未作答",
+                    "7(1)": document.getElementById("sa_4").value || "未作答",
+                    "7(2)": document.getElementById("sa_5").value || "未作答",
+                    "7(3)": document.getElementById("sa_6").value || "未作答"
+                }
+            },
+            "最终得分": {
+                "客观题得分": `${objScore}/15`,
+                "主观题得分": `${subScore}/15`,
+                "总分": `${totalScore}/30`
+            },
+            "阅卷明细": subDetails,
+            "提交时间": new Date().toLocaleString(),
+            "防伪验证码": antiCode
+        };
+
+        // 5. 展示UI
+        document.getElementById('nameDisplay').innerText = name;
+        document.getElementById('scoreObj').innerText = objScore;
+        document.getElementById('scoreSub').innerText = subScore;
+        document.getElementById('scoreTotal').innerText = totalScore;
+        
+        let detailHtml = "【阅卷详情】<br>";
+        let qIndices = ["6-(1)", "6-(2)", "6-(3)", "7-(1)", "7-(2)", "7-(3)"];
+        for(let i=0; i<6; i++) {
+            detailHtml += `${qIndices[i]}：${subDetails[`sa_${i+1}`]} 分<br>`;
+        }
+        document.getElementById('subDetailDisplay').innerHTML = detailHtml;
+        
+        document.getElementById('antiCodeDisplay').innerText = `官方防伪码：${antiCode}`;
+        document.getElementById('resultBox').style.display = 'block';
+
+        // 锁定答题卡
+        document.querySelectorAll('input, textarea, .btn-submit').forEach(el => el.disabled = true);
+        document.querySelector('.btn-submit').style.opacity = '0.5';
+        alert("交卷成功！客观题与主观题已自动判分完毕，请下载最终报告。");
+    }
+
+    function downloadData() {
+        if(Object.keys(reportData).length === 0) { alert("请先赛博交卷！"); return; }
+        const jsonData = JSON.stringify(reportData, null, 2);
+        const blob = new Blob([jsonData], { type: 'application/json;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `考生_${reportData["考生姓名"]}_防伪${reportData["防伪验证码"]}_生物答卷.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
+</body>
+          </html>
