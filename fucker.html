@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dickeating 检测 (极简版)</title>
+    <style>
+        body { background-color: #1e1e1e; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .container { background-color: #2d2d2d; padding: 30px; border-radius: 15px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.5); border: 2px solid #ff9800; }
+        h1 { color: #ff9800; font-size: 22px; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px; }
+        .step { margin: 20px 0; min-height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .question { font-size: 18px; margin-bottom: 15px; font-weight: bold; }
+        .options { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .btn { background: #555; color: white; border: none; padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: 0.2s; font-size: 14px; }
+        .btn:hover { background: #777; }
+        .result-box { display: none; margin-top: 20px; padding: 20px; background: #111; border-radius: 10px; border: 1px solid #00e5ff; }
+        .result-text { font-size: 28px; font-weight: bold; color: #00e5ff; margin: 10px 0; }
+        .btn-group { margin-top: 10px; display: flex; flex-direction: column; gap: 10px; align-items: center;}
+        .reset-btn { background: #ff9800; color: #000; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; width: 100%; max-width: 200px;}
+        .download-btn { background: #00e5ff; color: #000; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; width: 100%; max-width: 200px;}
+        .progress { font-size: 13px; color: #888; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>dickeating 性别（性取向）测算</h1>
+    <div class="progress" id="progressDisplay">第 1 / 6 题</div>
+    <div class="step" id="questionArea">
+        <div class="question" id="questionText">加载中...</div>
+        <div class="options" id="optionsContainer"></div>
+    </div>
+    <div class="result-box" id="resultArea">
+        <div>根据 dickeating 的最新算法（dickeating ofucks 2.0)，您是：</div>
+        <div class="result-text" id="finalResult">计算中...</div>
+        <div class="btn-group">
+            <button class="download-btn" onclick="downloadResult()">打印确诊单</button>
+            <button class="reset-btn" onclick="location.reload()">重新投胎</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 6个极度日常的无聊问题
+    const quizData = [
+        { q: "你早上一般吃什么？", o: ["常温种猪精液", "牛奶（sperm）", "dick", "逼"] },
+        { q: "你周末最喜欢干什么？", o: ["睡大觉", "打游戏", "起飞", "挖矿"] },
+        { q: "你晚上睡前通常干嘛？", o: ["刷手机", "看书", "食用霰弹", "做深蹲"] },
+        { q: "你暑假最想去哪？", o: ["叙利亚", "伊拉克", "乌克兰", "十七班"] },
+        { q: "你最喜欢的饮料？", o: ["常温种猪精液", "尿", "核废水", "豆汁儿"] },
+        { q: "你现在最想对 dickeating 说什么？", o: ["操你妈", "滚", "你是个神", "放我出去"] }
+    ];
+
+    // 终极结局池
+    const results = ["双性恋", "无性恋", "沃尔玛购物袋", "Gay", "Lesbian", "MtF", "FtM"];
+    let currentIndex = 0;
+    let finalDiagnosis = "";
+
+    function loadQuestion() {
+        document.getElementById('progressDisplay').innerText = `第 ${currentIndex + 1} / 6 题`;
+        if (currentIndex >= quizData.length) {
+            return showResult();
+        }
+        let data = quizData[currentIndex];
+        document.getElementById('questionText').innerText = data.q;
+        let html = '';
+        data.o.forEach(t => { html += `<button class="btn" onclick="nextStep()">${t}</button>`; });
+        document.getElementById('optionsContainer').innerHTML = html;
+    }
+
+    function nextStep() {
+        currentIndex++;
+        loadQuestion();
+    }
+
+    function showResult() {
+        document.getElementById('questionArea').style.display = 'none';
+        document.getElementById('progressDisplay').style.display = 'none';
+        finalDiagnosis = results[Math.floor(Math.random() * results.length)];
+        document.getElementById('finalResult').innerText = finalDiagnosis;
+        document.getElementById('resultArea').style.display = 'block';
+    }
+
+    function downloadResult() {
+        // 这里生成一个极其赛博的电子病历报告
+        const date = new Date().toLocaleString();
+        const content = `
+========================================
+       dickeating ofucks 病历报告
+========================================
+       检测时间：${date}
+       检测版本：dickeating ofucks 2.0
+----------------------------------------
+       最终诊断结果：${finalDiagnosis}
+----------------------------------------
+       医生建议：建议立刻前往“很正经的一群人”群聊
+                进行二期确诊，并在门口排队
+                领取“沃尔玛购物袋”实体化资格。
+========================================
+       备注：本诊断不具任何法律效力，仅供发疯使用。
+       造物主：deepfuck (门高旭，王赫然，李谨然，周子轩）
+       ；
+
+        // 创建并触发下载
+        const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `dickeating_病历单_${finalDiagnosis}.txt`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    loadQuestion();
+</script>
+</body>
+              </html>
+  
