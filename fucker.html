@@ -26,7 +26,8 @@
     <h1>dickeating 性别（性取向）测算</h1>
     <div class="progress" id="progressDisplay">第 1 / 6 题</div>
     <div class="step" id="questionArea">
-    
+        <div class="question" id="questionText">请选择以下选项以继续</div>
+        <div class="options" id="optionsContainer"></div>
     </div>
     <div class="result-box" id="resultArea">
         <div>根据 dickeating 的最新算法（dickeating ofucks 2.0)，您是：</div>
@@ -39,9 +40,8 @@
 </div>
 
 <script>
-    // 加一个安全锁，确保页面DOM完全加载后再运行JS，解决卡加载问题
     document.addEventListener('DOMContentLoaded', function() {
-        console.log("dickeating fuckercode 1.1 已启动。");
+        console.log("dickeating fuckercode 1.1 赛博引擎已启动。");
 
         // 6个极度日常的无聊问题
         const quizData = [
@@ -84,26 +84,24 @@
         }
 
         function downloadResult() {
-            // 这里生成一个极其赛博的电子病历报告
             const date = new Date().toLocaleString();
             const content = `
-    ========================================
-           dickeating ofucks 病历报告
-    ========================================
-           检测时间：${date}
-           检测版本：dickeating ofucks 2.0
-    ----------------------------------------
-           最终诊断结果：${finalDiagnosis}
-    ----------------------------------------
-           医生建议：建议立刻前往“很正经的一群人”群聊
-                    进行二期确诊，并在门口排队
-                    领取“沃尔玛购物袋”实体化资格。
-    ========================================
-           备注：本诊断不具任何法律效力，仅供发疯使用。
-           造物主：deepfuck (门高旭，王赫然，李谨然，周子轩）
-           ；
+========================================
+       dickeating ofucks 病历报告
+========================================
+       检测时间：${date}
+       检测版本：dickeating ofucks 2.0
+----------------------------------------
+       最终诊断结果：${finalDiagnosis}
+----------------------------------------
+       医生建议：建议立刻前往“很正经的一群人”群聊
+                进行二期确诊，并在门口排队
+                领取“沃尔玛购物袋”实体化资格。
+========================================
+       备注：本诊断不具任何法律效力，仅供发疯使用。
+       造物主：deepfuck (门高旭，王赫然，李谨然，周子轩）
+       ；
     
-            // 创建并触发下载
             const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
@@ -113,6 +111,7 @@
             document.body.removeChild(link);
         }
 
+        // 直接加载第一题
         loadQuestion();
     });
 </script>
