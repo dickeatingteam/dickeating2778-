@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HRT 崩坏模拟器 - 药物超量警示版</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background: #0f172a; color: #e2e8f0; font-family: monospace; padding: 20px; margin: 0; display: flex; justify-content: center; }
+        .game-container { width: 100%; max-width: 540px; background: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid #334155; }
+        h1 { color: #ef4444; text-align: center; font-size: 20px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        
+        #start-screen { text-align: center; padding: 20px 0; }
+        #start-screen h2 { color: #f8fafc; }
+        
+        /* 免责声明框 */
+        .disclaimer-box { background: #1a0a0a; border: 1px solid #dc2626; padding: 15px; border-radius: 6px; margin: 20px 0; text-align: left; }
+        .disclaimer-box h3 { color: #fca5a5; margin-top: 0; }
+        .disclaimer-box p { font-size: 12px; color: #94a3b8; line-height: 1.6; }
+        .disclaimer-box strong { color: #e2e8f0; }
+
+        .role-btn { background: #2563eb; border: none; color: white; padding: 15px 30px; font-size: 18px; border-radius: 8px; margin: 10px; cursor: pointer; font-weight: bold; }
+        .role-btn:hover { background: #1d4ed8; }
+
+        #config-screen { display: none; }
+        .config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .config-item { background: #0f172a; padding: 8px; border-radius: 6px; border: 1px solid #334155; }
+        .config-item label { font-size: 11px; color: #94a3b8; display: block; margin-bottom: 3px; }
+        .config-item input { width: 100%; background: #1e293b; border: 1px solid #475569; color: #e2e8f0; padding: 4px; border-radius: 4px; font-family: monospace; }
+        .config-item small { color: #64748b; font-size: 9px; display: block; margin-top: 2px; }
+        .confirm-btn { width: 100%; padding: 12px; background: #22c55e; border: none; border-radius: 6px; color: #000; font-weight: bold; cursor: pointer; margin-top: 15px; }
+        .confirm-btn:hover { background: #16a34a; }
+
+        #game-screen { display: none; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
+        .stat-item { background: #0f172a; padding: 8px; border-radius: 6px; border-left: 3px solid #3b82f6; }
+        .stat-label { font-size: 10px; color: #94a3b8; display: block; }
+        .stat-value { font-size: 14px; font-weight: bold; display: flex; justify-content: space-between; }
+        .stat-bar { height: 6px; background: #334155; border-radius: 4px; margin-top: 4px; overflow: hidden; }
+        .stat-fill { height: 100%; transition: width 0.3s; background: #3b82f6; }
+        .warn-fill { background: #eab308; }
+        .danger-fill { background: #ef4444; }
+
+        .chart-container { margin: 10px 0; padding: 10px; background: #0f172a; border-radius: 6px; border: 1px solid #334155; height: 180px; }
+        #hrtChart { width: 100% !important; height: 100% !important; }
+
+        .biochem-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 8px 0; padding: 10px; background: #0f172a; border-radius: 6px; border: 1px solid #334155; }
+        .bio-item { font-size: 12px; }
+        .bio-item span { color: #94a3b8; }
+        .bio-item strong { color: #f8fafc; }
+
+        .vitals { display: flex; flex-wrap: wrap; justify-content: space-between; margin: 10px 0; padding: 10px; background: #0f172a; border-radius: 6px; border: 1px solid #f59e0b; gap: 10px;}
+        .vital-block { flex:1; min-width: 60px; }
+
+        .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .drug-btn { background: #334155; border: none; color: #fff; padding: 10px; border-radius: 4px; cursor: pointer; font-size: 13px; transition: 0.2s; }
+        .drug-btn:hover { background: #475569; }
+        .log-box { height: 100px; overflow-y: scroll; background: #0f172a; padding: 10px; margin-top: 10px; border-radius: 6px; font-size: 12px; line-height: 1.5; color: #94a3b8; }
+        .log-box::-webkit-scrollbar { width: 4px; }
+        .log-box::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        .game-over { display: none; text-align: center; margin-top: 20px; padding: 15px; background: #7f1d1d; border-radius: 6px; border: 1px solid #dc2626; }
+        .game-over h3 { color: #fca5a5; margin: 0; }
+        .game-over p { font-size: 14px; color: #fecaca; }
+        
+        .footer { margin-top: 20px; border-top: 1px solid #334155; padding-top: 15px; text-align: center; font-size: 10px; color: #64748b; line-height: 1.6; }
+        .footer .author { color: #f8fafc; font-weight: bold; }
+        .footer a { color: #3b82f6; text-decoration: none; }
+
+        .next-btn { width: 100%; padding: 12px; background: #f59e0b; border:none; border-radius:6px; color:#000; font-weight:bold; cursor:pointer; margin-top: 5px; }
+        .next-btn:hover { background: #d97706; }
+        .warning-tag { color: #ef4444; font-size: 12px; font-weight: bold; }
+    </style>
+</head>
+ <body>
+<div class="game-container">
+    <!-- 初始 -->
+    <div id="start-screen">
+        <h1>HRT 崩坏沙盒 v4.1</h1>
+        
+        <div class="disclaimer-box">
+            <h3>⚠️ 免责声明与安全警示</h3>
+            <p><strong>本模拟器仅为基于通用药代动力学与临床生化指标设计的 <strong>教育警示工具</strong>，<span style="color:#ef4444;">不构成任何医疗建议、诊断或治疗方案。</span></strong></p>
+            <p>所有模拟数据、血药浓度变化及生化指标波动均基于通用药理学模型，<span style="color:#ef4444;">不代表真实临床个案，不可作为实际用药指导。</span></p>
+            <p>盲目服用激素药物、擅自改变剂量或进行不规范激素替代疗法（HRT）可能导致<span style="color:#ef4444;">肝功能衰竭、血栓栓塞、内分泌不可逆损伤甚至死亡。</span></p>
+            <p>如确有医疗需求，请务必前往 <strong>三甲医院内分泌科</strong> 咨询专业医生。因使用本软件数据或模拟内容而产生的任何直接或间接损失，<span style="color:#ef4444;">开发者与设计者概不承担法律责任。</span></p>
+            <div style="font-size:12px; color:#64748b; margin-top:5px;">* 未成年人请在监护人指导下使用。</div>
+        </div>
+
+        <h2 style="margin-top: 10px;">选择初始生理性别</h2>
+        <button class="role-btn" onclick="openConfig('male')">♂ 男性 (XY)</button>
+        <button class="role-btn" onclick="openConfig('female')">♀ 女性 (XX)</button>
+        <div style="margin-top:20px; font-size: 12px; color: #64748b;">基于你本人的化验单与真实临床数据。<br>祝各位永远不死。</div>
+    </div>
+
+    <!-- 配置页 -->
+    <div id="config-screen">
+        <h1>配置初始数据</h1>
+        <div class="config-grid" id="config-grid"></div>
+        <button class="confirm-btn" onclick="beginSimulation()">⚡ 开始生化崩坏实验</button>
+    </div>
+
+    <!-- 游戏主屏 -->
+    <div id="game-screen">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+            <span id="role-display" style="font-size:14px; color:#94a3b8;"></span>
+            <span style="display:flex; gap:10px;">
+                <span id="cycle-display" style="font-size:12px; color:#f97316; display:none;"></span>
+                <span id="day-display" style="font-size:14px;">第 1 天</span>
+            </span>
+        </div>
+
+        <div class="stats-grid" id="stats-panel"></div>
+
+        <div class="biochem-grid" id="biochem-panel">
+            <div class="bio-item">ALT (谷丙转氨酶) <span id="bio_alt">20</span> U/L <span style="color:#64748b;">(<40)</span></div>
+            <div class="bio-item">AST (谷草转氨酶) <span id="bio_ast">25</span> U/L <span style="color:#64748b;">(<40)</span></div>
+            <div class="bio-item">GGT (γ-谷氨酰转移酶) <span id="bio_ggt">20</span> U/L <span style="color:#64748b;">(<50)</span></div>
+            <div class="bio-item">ALP (碱性磷酸酶) <span id="bio_alp">80</span> U/L <span style="color:#64748b;">(42-128)</span></div>
+            <div class="bio-item">T-BIL (总胆红素) <span id="bio_tbil">10</span> umol/L <span style="color:#64748b;">(3.1-24)</span></div>
+            <div class="bio-item">ALB (白蛋白) <span id="bio_alb">45</span> g/L <span style="color:#64748b;">(35-55)</span></div>
+        </div>
+
+        <div class="vitals">
+            <div class="vital-block"><strong>🫁 综合肝功能</strong> <div class="stat-bar"><div class="stat-fill" id="liver-bar" style="width:100%; background:#22c55e;"></div></div></div>
+            <div class="vital-block"><strong>🩸 凝血因子</strong> <div class="stat-bar"><div class="stat-fill" id="clot-bar" style="width:0%;"></div></div></div>
+            <div class="vital-block"><strong>🧔 雄性化</strong> <div class="stat-bar"><div class="stat-fill" id="virilization-bar" style="width:0%; background:#d946ef;"></div></div></div>
+        </div>
+
+        <div class="chart-container"><canvas id="hrtChart"></canvas></div>
+
+        <div class="actions" id="action-buttons">
+            <button class="drug-btn" onclick="confirmDrug('estradiol')">💊 17β-雌二醇</button>
+            <button class="drug-btn" onclick="confirmDrug('spironolactone')">💊 螺内酯</button>
+            <button class="drug-btn" onclick="confirmDrug('cyproterone')">💊 醋酸环丙孕酮</button>
+            <button class="drug-btn" onclick="confirmDrug('testosterone')">💊 十一酸睾酮</button>
+        </div>
+        <div id="next-day-area" style="display:none; margin-top:10px;">
+            <button class="next-btn" onclick="advanceDay()">进入下一天（记录一次血药浓度）</button>
+        </div>
+        <div class="log-box" id="log-box">[系统] 生化崩坏模拟已启动。</div>
+
+        <div class="game-over" id="game-over-box">
+            <h3>💀 实验体已死亡</h3>
+            <p id="death-reason">你的身体没能承受住这场实验。</p>
+            <div style="color:#ef4444; font-weight:bold; margin: 10px 0; font-size: 16px;">游戏可以重开，人生不可重来。</div>
+            <button onclick="location.reload()">重新投胎</button>
+        </div>
+
+        <div class="footer">
+            <div class="author">设计者：「生物学标准答案」· deepfuck 赛博实验室</div>
+            <div>⚠️ 本工具旨在通过数据可视化警示滥用激素药物的致死风险。所有数据均不构成医疗建议，如有需求请前往正规三甲医院就诊。</div>
+            <div>由于使用本模拟器数据或模拟内容而产生的任何人身伤害或财产损失，开发者与设计者概不承担责任。</div>
+        </div>
+    </div>
+          </div> 
+<script>
+    // ==========================================================
+    // 1. 初始化与基础数据库
+    // ==========================================================
+    const maleRanges = { FSH: [1.27, 19.26], LH: [1.24, 8.62], E2: [0, 38.95], T: [1.75, 7.81], PRL: [2.64, 13.13], P: [0.14, 2.06], SHBG: [10, 57] };
+    const femaleRanges = { FSH: [3.85, 8.78], LH: [2.12, 10.89], E2: [15.16, 148.13], T: [0, 0.75], PRL: [3.34, 26.72], P: [0.31, 1.52], SHBG: [18, 144] };
+    const keys = ['FSH', 'LH', 'E2', 'T', 'PRL', 'P', 'SHBG'];
+    const units = ['mIU/mL', 'mIU/mL', 'pg/mL', 'ng/mL', 'ng/mL', 'ng/mL', 'nmol/L'];
+    const defaultMale = { FSH: 3.1, LH: 1.62, Endo_E2: 21, Exo_E2: 0, Endo_T: 2.0, Exo_T: 0, PRL: 10.3, P: 0.57, SHBG: 8.1 };
+    const defaultFemale = { FSH: 8.0, LH: 6.0, Endo_E2: 80, Exo_E2: 0, Endo_T: 0.35, Exo_T: 0, PRL: 15, P: 0.8, SHBG: 45 };
+
+    const liverToxicity = {
+        'estradiol': { alt: 2, ast: 3, ggt: 3, alp: 0, tbil: 0.8, alb: 0, msg: "雌激素需肝脏代谢，ALT/AST/GGT轻度升高。" },
+        'spironolactone': { alt: 7, ast: 8, ggt: 4, alp: 2, tbil: 0.5, alb: -0.2, msg: "螺内酯严重加重肝负荷，ALT/AST急升。" },
+        'cyproterone': { alt: 5, ast: 6, ggt: 10, alp: 8, tbil: 1.2, alb: -0.5, msg: "醋酸环丙孕酮引起明显胆汁淤积，GGT/ALP/胆红素飙升。" },
+        'testosterone': { alt: 3, ast: 4, ggt: 2, alp: 0, tbil: 0.6, alb: -0.1, msg: "11酸睾酮有一定肝脏首过效应，ALT/AST轻度升高。" }
+    };
+
+    const drugEffects = {
+        'estradiol': { Exo_E2: 28, SHBG: 12, Clot: 15, Liver: -6, msg: "外源E2飙升，肝脏开始大规模合成SHBG结合内源E2。" },
+        'spironolactone': { Endo_T: -0.6, Liver: -15, PRL: 3, msg: "螺内酯压制内源性睾酮，肾素-血管紧张素系统紊乱。" },
+        'cyproterone': { Endo_T: -1.2, Liver: -30, FSH: -1.5, LH: -1.2, msg: "CPA强力压制内源睾酮，肝脏代谢负担极重。" },
+        'testosterone': { Exo_T: 2.5, Exo_E2: 8, SHBG: -10, Liver: -10, msg: "外源睾酮涌入，部分经芳香化酶转化为外源E2！" }
+    };
+
+    let selectedGender = 'male';
+    let state = {};
+    let liver = { alt: 20, ast: 25, ggt: 20, alp: 80, tbil: 10, alb: 45 };
+    let currentDay = 1, cycleDay = 1;
+    let gameRunning = true, hasTakenDrugToday = false;
+    let historyData = [];
+    let hrtChart = null;
+
+    // ==========================================================
+    // 2. 交互与启动
+    // ==========================================================
+    function openConfig(gender) {
+        selectedGender = gender;
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('config-screen').style.display = 'block';
+        let defaults = gender === 'male' ? defaultMale : defaultFemale;
+        let ranges = gender === 'male' ? maleRanges : femaleRanges;
+        let html = '';
+        let cfgKeys = ['FSH', 'LH', 'PRL', 'P', 'SHBG', 'Endo_E2', 'Endo_T'];
+        let cfgLabels = ['FSH (促卵泡生成素)', 'LH (促黄体生成素)', 'PRL (泌乳素)', 'P (孕酮)', 'SHBG (性激素结合球蛋白)', 'Endo_E2 (内源雌二醇)', 'Endo_T (内源睾酮)'];
+        
+        cfgKeys.forEach((key, idx) => {
+            let val = defaults[key] || 0;
+            let range = ranges[key] || [0, 100];
+            html += `<div class="config-item"><label>${cfgLabels[idx]}</label><input type="number" step="0.01" id="cfg_${key}" value="${val.toFixed(2)}"><small>参考: ${range[0]}-${range[1]}</small></div>`;
+        });
+        html += `<div class="config-item"><label>初始肝功能 (%)</label><input type="number" id="cfg_Liver" value="100" min="10" max="100"></div>`;
+        if (gender === 'female') {
+            html += `<div class="config-item"><label>生理周期 (第X天)</label><input type="number" id="cfg_Cycle" value="1" min="1" max="28"></div>`;
+        }
+        document.getElementById('config-grid').innerHTML = html;
+    }
+
+    function beginSimulation() {
+        let ns = {};
+        let cfg = ['FSH', 'LH', 'PRL', 'P', 'SHBG', 'Endo_E2', 'Endo_T'];
+        cfg.forEach(key => {
+            let v = parseFloat(document.getElementById(`cfg_${key}`).value);
+            ns[key] = isNaN(v) ? 0 : Math.max(0, v);
+        });
+        ns.Exo_E2 = 0; ns.Exo_T = 0;
+        let liv = parseInt(document.getElementById('cfg_Liver').value);
+        ns.Liver = isNaN(liv) ? 100 : Math.min(100, Math.max(0, liv));
+        ns.Clot = 0; ns.Virilization = 0;
+        state = ns;
+        liver = { alt: 20, ast: 25, ggt: 20, alp: 80, tbil: 10, alb: 45 };
+        currentDay = 1; gameRunning = true; hasTakenDrugToday = false; historyData = [];
+        cycleDay = selectedGender === 'female' ? Math.max(1, Math.min(28, parseInt(document.getElementById('cfg_Cycle').value) || 1)) : 0;
+
+        document.getElementById('config-screen').style.display = 'none';
+        document.getElementById('game-screen').style.display = 'block';
+        document.getElementById('role-display').innerText = `当前角色：${selectedGender === 'male' ? '♂ 男性 (自定义)' : '♀ 女性 (自定义)'}`;
+        let cycleDisplay = document.getElementById('cycle-display');
+        if (selectedGender === 'female') {
+            cycleDisplay.style.display = 'inline'; cycleDisplay.innerText = `周期 第${cycleDay}天`;
+        } else { cycleDisplay.style.display = 'none'; }
+
+        const ctx = document.getElementById('hrtChart').getContext('2d');
+        if (hrtChart) hrtChart.destroy();
+        hrtChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: [], datasets: [
+                { label: '总 E2 (pg/mL)', data: [], borderColor: '#3b82f6', tension: 0.4, pointRadius: 2 },
+                { label: '外源 E2 (pg/mL)', data: [], borderColor: '#60a5fa', borderDash: [5, 5], tension: 0.4, pointRadius: 2 },
+                { label: '总 T (ng/mL)', data: [], borderColor: '#ef4444', tension: 0.4, pointRadius: 2 },
+                { label: '外源 T (ng/mL)', data: [], borderColor: '#fca5a5', borderDash: [5, 5], tension: 0.4, pointRadius: 2 },
+                { label: 'SHBG (nmol/L)', data: [], borderColor: '#eab308', tension: 0.4, pointRadius: 2 }
+            ]},
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8', boxWidth: 10, font: { size: 9 } } } }, scales: { x: { grid: { color: '#334155' }, ticks: { color: '#64748b', font: { size: 8 } } }, y: { grid: { color: '#334155' }, ticks: { color: '#64748b', font: { size: 8 } } } } }
+        });
+        recordSnapshot(); updateUI(); logMessage(`[系统] 生化模拟已启动。`);
+    }
+
+    // ==========================================================
+    // 3. 安全确认、药物与演变逻辑
+    // ==========================================================
+    function confirmDrug(drug) {
+        if (!gameRunning) return;
+        if (hasTakenDrugToday) { logMessage(`[警告] 你今天已经吃过药了！药物过量叠加！`); return; }
+        if(!confirm(`⚠️ 你确定要超剂量服用【${drug}】吗？\n点击“确定”代表你已确认超过安全剂量，无视风险，继续服用！`)) return;
+        takeDrug(drug);
+    }
+
+    function takeDrug(drug) {
+        let effect = drugEffects[drug];
+        let tox = liverToxicity[drug];
+        if (!effect || !tox) return;
+        logMessage(`[第${currentDay}天] 你无视风险，服用了【${drug}】。`);
+        logMessage(`[药效] ${effect.msg}`);
+        logMessage(`[生化损伤] ${tox.msg}`);
+
+        for (let key in effect) {
+            if (key === 'msg') continue;
+            if (key === 'Liver') state.Liver = Math.max(0, state.Liver + effect[key]);
+            else if (key === 'Clot') state.Clot = Math.min(100, state.Clot + effect[key]);
+            else if (key === 'Endo_E2' || key === 'Exo_E2' || key === 'Endo_T' || key === 'Exo_T' || key === 'SHBG' || key === 'FSH' || key === 'LH' || key === 'PRL' || key === 'P') {
+                state[key] = Math.max(0, state[key] + effect[key]);
+            }
+        }
+        liver.alt = Math.max(0, liver.alt + tox.alt);
+        liver.ast = Math.max(0, liver.ast + tox.ast);
+        liver.ggt = Math.max(0, liver.ggt + tox.ggt);
+        liver.alp = Math.max(0, liver.alp + tox.alp);
+        liver.tbil = Math.max(0, liver.tbil + tox.tbil);
+        liver.alb = Math.max(10, liver.alb + tox.alb);
+
+        // 生化联动
+        let total_E2 = state.Endo_E2 + state.Exo_E2;
+        if (total_E2 > 60) {
+            let extraSHBG = (total_E2 - 60) * 0.3;
+            state.SHBG = Math.min(100, state.SHBG + extraSHBG);
+            logMessage(`[严重警告] 内外源总和雌激素过高，肝脏爆发性分泌 SHBG！`);
+        }
+        let total_T = state.Endo_T + state.Exo_T;
+        if (total_T > 0.8 && state.Virilization < 100) {
+            let virilGain = (total_T - 0.8) * 12;
+            state.Virilization = Math.min(100, state.Virilization + virilGain);
+            if (state.Virilization > 20) logMessage(`[反馈] 声带变厚，下巴冒出胡茬。`);
+            if (state.Virilization > 40) logMessage(`[反馈] 发际线正在以张雪峰老师讲课的速度后移。`);
+        }
+        hasTakenDrugToday = true;
+        document.getElementById('action-buttons').style.display = 'none';
+        document.getElementById('next-day-area').style.display = 'block';
+        updateUI(); checkDeath();
+    }
+
+    function advanceDay() {
+        // 生理周期推进与真实激素波动（仅女性）
+        if (selectedGender === 'female') {
+            cycleDay = (cycleDay % 28) + 1;
+            let baseE2 = 60, baseLH = 5, baseFSH = 5, baseP = 0.5;
+            if (cycleDay <= 14) { baseE2 += (cycleDay / 14) * 60; baseLH = 5 + (cycleDay / 14)*5; }
+            else if (cycleDay >= 14 && cycleDay <= 15) { baseE2 = 160; baseLH = 35; baseFSH = 25; }
+            else { baseE2 = 80; baseLH = 7; baseFSH = 5; baseP = 0.8 + (cycleDay - 16) * 0.1; }
+            // 自然波动叠加于内源激素
+            state.Endo_E2 = Math.max(0, state.Endo_E2 + (baseE2 / 10 - 5)); // 微小波动
+            state.LH = Math.max(0, state.LH + (baseLH / 5));
+            state.FSH = Math.max(0, state.FSH + (baseFSH / 5));
+            state.P = Math.max(0, state.P + (baseP / 5));
+            if (state.Endo_E2 > 200) state.Endo_E2 = 200;
+            if (state.LH > 40) state.LH = 40;
+            if (state.FSH > 30) state.FSH = 30;
+            if (state.P > 5) state.P = 5;
+            document.getElementById('cycle-display').innerText = `周期 第${cycleDay}天`;
+        } else {
+            // 男性内源激素基础自然恢复（微弱代谢）
+            state.Endo_T = Math.max(0.1, state.Endo_T + 0.1);
+            state.Endo_E2 = Math.max(0.1, state.Endo_E2 - 0.5);
+        }
+
+        state.Liver = Math.max(0, state.Liver - (5 + Math.random()*3));
+        state.Clot = Math.min(100, state.Clot + (Math.random()*1.5));
+        liver.alt = Math.max(0, liver.alt - 2.5);
+        liver.ast = Math.max(0, liver.ast - 3.0);
+        liver.ggt = Math.max(0, liver.ggt - 1.5);
+        liver.alp = Math.max(0, liver.alp - 2.0);
+        liver.tbil = Math.max(0, liver.tbil - 0.5);
+        liver.alb = Math.min(55, liver.alb + 0.3);
+
+        currentDay++;
+        document.getElementById('day-display').innerText = `第 ${currentDay} 天`;
+        hasTakenDrugToday = false;
+        document.getElementById('action-buttons').style.display = 'grid';
+        document.getElementById('next-day-area').style.display = 'none';
+        recordSnapshot(); updateUI();
+        logMessage(`[系统] 进入第 ${currentDay} 天。自然代谢发生。`);
+        checkDeath();
+    }
+
+    // ==========================================================
+    // 4. 图表与渲染
+    // ==========================================================
+    function recordSnapshot() {
+        historyData.push({ 
+            day: currentDay, 
+            Endo_E2: state.Endo_E2, 
+            Exo_E2: state.Exo_E2, 
+            Endo_T: state.Endo_T, 
+            Exo_T: state.Exo_T, 
+            SHBG: state.SHBG 
+        });
+        updateChart();
+    }
+    function updateChart() {
+        if (!hrtChart) return;
+        hrtChart.data.labels = historyData.map(d => `第${d.day}天`);
+        hrtChart.data.datasets[0].data = historyData.map(d => d.Endo_E2 + d.Exo_E2);
+        hrtChart.data.datasets[1].data = historyData.map(d => d.Exo_E2);
+        hrtChart.data.datasets[2].data = historyData.map(d => d.Endo_T + d.Exo_T);
+        hrtChart.data.datasets[3].data = historyData.map(d => d.Exo_T);
+        hrtChart.data.datasets[4].data = historyData.map(d => d.SHBG);
+        hrtChart.update();
+    }
+
+    function updateUI() {
+        const panel = document.getElementById('stats-panel');
+        let html = '';
+        const labels = ['FSH (促卵泡生成素)', 'LH (促黄体生成素)', 'E2 (总雌二醇)', 'T (总睾酮)', 'PRL (泌乳素)', 'P (孕酮)', 'SHBG (性激素结合球蛋白)'];
+        const refs = selectedGender === 'male' ? maleRanges : femaleRanges;
+        let total_E2 = state.Endo_E2 + state.Exo_E2;
+        let total_T = state.Endo_T + state.Exo_T;
+        let e2_val = Math.max(0, total_E2);
+        let t_val = Math.max(0, total_T);
+        let refs_map = { 'E2': e2_val, 'T': t_val, 'FSH': state.FSH, 'LH': state.LH, 'PRL': state.PRL, 'P': state.P, 'SHBG': state.SHBG };
+        let rIdx = 0;
+
+        for (let i=0; i<keys.length; i++) {
+            let key = keys[i];
+            let val = refs_map[key];
+            let ref = refs[key];
+            let percent = Math.min(100, (val / 50) * 100);
+            let color = percent > 75 ? 'danger-fill' : (percent > 50 ? 'warn-fill' : 'stat-fill');
+            html += `<div class="stat-item"><div class="stat-label">${labels[i]} <span style="color:#64748b;">(${ref[0]}-${ref[1]})</span></div><div class="stat-value"><span>${val.toFixed(2)} ${units[i]}</span></div><div class="stat-bar"><div class="stat-fill ${color}" style="width:${Math.min(100,percent)}%;"></div></div></div>`;
+        }
+        panel.innerHTML = html;
+
+        document.getElementById('bio_alt').innerText = liver.alt.toFixed(1);
+        document.getElementById('bio_ast').innerText = liver.ast.toFixed(1);
+        document.getElementById('bio_ggt').innerText = liver.ggt.toFixed(1);
+        document.getElementById('bio_alp').innerText = liver.alp.toFixed(1);
+        document.getElementById('bio_tbil').innerText = liver.tbil.toFixed(1);
+        document.getElementById('bio_alb').innerText = liver.alb.toFixed(1);
+
+        let liverHealth = state.Liver;
+        if (liver.alt > 70) liverHealth -= 15;
+        if (liver.ast > 70) liverHealth -= 15;
+        if (liver.ggt > 100) liverHealth -= 20;
+        if (liver.alp > 150) liverHealth -= 10;
+        if (liver.tbil > 30) liverHealth -= 10;
+        if (liver.alb < 30) liverHealth -= 15;
+        liverHealth = Math.max(0, Math.min(100, liverHealth));
+
+        document.getElementById('liver-bar').style.width = liverHealth + '%';
+        document.getElementById('liver-bar').className = liverHealth < 30 ? 'stat-fill danger-fill' : (liverHealth < 60 ? 'stat-fill warn-fill' : 'stat-fill');
+        document.getElementById('clot-bar').style.width = state.Clot + '%';
+        document.getElementById('clot-bar').className = state.Clot > 70 ? 'stat-fill danger-fill' : (state.Clot > 40 ? 'stat-fill warn-fill' : 'stat-fill');
+        document.getElementById('virilization-bar').style.width = state.Virilization + '%';
+        document.getElementById('virilization-bar').className = state.Virilization > 60 ? 'stat-fill danger-fill' : (state.Virilization > 30 ? 'stat-fill warn-fill' : 'stat-fill');
+    }
+
+    // ==========================================================
+    // 5. 死亡判定
+    // ==========================================================
+    function checkDeath() {
+        let reason = "", died = false;
+        let liverHealth = state.Liver;
+        if (liver.alt > 120 && liver.ast > 120) { reason = "ALT/AST严重爆表，发生【急性药物性肝坏死】。"; died = true; }
+        else if (liver.ggt > 150 && liver.alp > 200) { reason = "GGT与ALP极限飙升，【严重胆汁淤积性肝损伤】。"; died = true; }
+        else if (liver.alb < 15) { reason = "白蛋白极速下降，发生【严重低蛋白血症与腹水】。"; died = true; }
+        else if (state.Clot >= 95) { reason = "雌激素与药物形成【急性大面积肺栓塞】。"; died = true; }
+        else if (liverHealth <= 0 || state.Liver <= 0) { reason = "【肝功能彻底衰竭】。"; died = true; }
+
+        if (died) {
+            gameRunning = false;
+            document.getElementById('death-reason').innerText = reason + "\n\n祝各位永远不死。";
+            document.getElementById('game-over-box').style.display = 'block';
+            document.getElementById('action-buttons').style.display = 'none';
+            document.getElementById('next-day-area').style.display = 'none';
+            logMessage(`[系统] 实验体已死亡。`);
+        }
+    }
+
+    function logMessage(msg) {
+        const logBox = document.getElementById('log-box');
+        logBox.innerHTML += `<div>${msg}</div>`;
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+</script>
+</body>
+</html>
