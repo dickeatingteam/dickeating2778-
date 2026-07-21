@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>急诊分诊台 · 内分泌专病版</title>
+    <style>
+        body { background: #0f172a; color: #e2e8f0; font-family: monospace; display: flex; justify-content: center; padding: 20px; }
+        .game-box { width: 100%; max-width: 650px; background: #1e293b; padding: 20px; border-radius: 12px; border: 1px solid #334155; }
+        h1 { color: #ef4444; text-align: center; border-bottom: 1px solid #334155; padding-bottom: 10px; font-size: 20px; letter-spacing: 2px;}
+        
+        .panel { background: #0f172a; padding: 15px; border-radius: 6px; border-left: 4px solid #3b82f6; margin-bottom: 15px; }
+        .panel h3 { margin: 0 0 5px 0; color: #94a3b8; font-size: 14px; }
+        .panel pre { color: #f8fafc; font-size: 13px; margin: 0; white-space: pre-wrap; font-family: monospace; }
+
+        .exam-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px; margin: 10px 0; }
+        .exam-btn { background: #334155; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-size: 11px; transition: 0.2s; }
+        .exam-btn:hover { background: #475569; }
+        .exam-btn:active { transform: scale(0.95); }
+        .exam-btn.done { background: #22c55e; color: #000; }
+
+        .report-area { background: #0f172a; padding: 15px; border-radius: 6px; border: 1px solid #475569; margin: 10px 0; font-size: 13px; white-space: pre-wrap; word-wrap: break-word; font-family: monospace;}
+        .report-area strong { color: #f8fafc; }
+
+        #ecgCanvas { width: 100%; height: 60px; background: #000; border-radius: 4px; display: block; margin: 5px 0; }
+
+        .input-area { width: 100%; height: 60px; background: #0f172a; color: #e2e8f0; border: 1px solid #475569; padding: 8px; border-radius: 4px; margin-top: 10px; font-family: monospace; }
+        .actions { display: flex; gap: 10px; margin-top: 15px; }
+        .action-btn { flex: 1; padding: 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        .treat-btn { background: #22c55e; color: #000; }
+        .kill-btn { background: #dc2626; color: #fff; }
+
+        .log-box { height: 120px; overflow-y: scroll; background: #0f172a; padding: 10px; margin-top: 15px; border-radius: 6px; font-size: 13px; color: #94a3b8; border: 1px solid #334155; }
+        .log-box::-webkit-scrollbar { width: 4px; }
+        .log-box::-webkit-scrollbar-thumb { background: #475569; }
+
+        .death-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: center; flex-direction: column; }
+        .death-card { background: #7f1d1d; padding: 30px; border-radius: 12px; border: 4px solid #dc2626; text-align: center;}
+        .death-card h1 { font-size: 30px; margin: 0; color: #fca5a5; }
+        .death-card p { color: #fecaca; margin-top: 10px; }
+        .reset-btn { background: #fff; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="game-box">
+        <h1>急诊分诊台</h1>
+        
+        <div class="panel" id="patientPanel">
+            <h3>👤 患者主诉</h3>
+            <pre id="patientInfo">正在加载患者...</pre>
+        </div>
+
+        <div class="panel" style="border-left-color: #f59e0b;">
+            <h3>📋 检查与检验</h3>
+            <div class="exam-grid" id="examGrid">
+                <button class="exam-btn" onclick="runExam('血常规')"> 血常规</button>
+                <button class="exam-btn" onclick="runExam('尿常规')"> 尿常规</button>
+                <button class="exam-btn" onclick="runExam('肝功能')">肝功能</button>
+                <button class="exam-btn" onclick="runExam('肾功能')">肾功能</button>
+                <button class="exam-btn" onclick="runExam('性激素六项')"> 性激素六项</button>
+                <button class="exam-btn" onclick="runExam('SHBG')"> SHBG</button>
+                <button class="exam-btn" onclick="runExam('血糖与血脂')"> 血糖血脂</button>
+                <button class="exam-btn" onclick="runExam('糖化血红蛋白')"> 糖化血红蛋白</button>
+                <button class="exam-btn" onclick="runExam('炎症三项')"> 炎症三项</button>
+                <button class="exam-btn" onclick="runExam('心电图')"> 心电图</button>
+                <button class="exam-btn" onclick="runExam('精神科会诊')"> 精神科会诊</button>
+                <button class="exam-btn" onclick="runExam('凝血功能')">凝血功能</button>
+                <button class="exam-btn" onclick="runExam('心肌酶谱')"> 心肌酶谱</button>
+                <button class="exam-btn" onclick="runExam('电解质')">电解质</button>
+                <button class="exam-btn" onclick="runExam('CT')">CT</button>
+                <button class="exam-btn" onclick="runExam('DR')">DR</button>
+                <button class="exam-btn" onclick="runExam('MRI')">MRI</button>
+                <button class="exam-btn" onclick="runExam('彩超')"> 彩超</button>
+            </div>
+            <div id="reportContainer" class="report-area" style="display:none; margin-top:10px;"></div>
+        </div>
+
+        <div class="panel" style="border-left-color: #22c55e;">
+            <h3>✍️ 诊断与治疗方案</h3>
+            <textarea id="diagnosisInput" class="input-area" placeholder="例：糖尿病酮症酸中毒，立即补液与胰岛素..."></textarea>
+        </div>
+
+        <div class="actions">
+            <button class="action-btn treat-btn" onclick="submitCase('success')">💊 提交诊断与处方</button>
+            <button class="action-btn kill-btn" onclick="submitCase('fail')">❌ 让患者出院</button>
+        </div>
+
+        <div class="log-box" id="logBox">[系统] 分诊台已启动，请准确判断病情。</div>
+    </div>
+
+    <div class="death-overlay" id="deathOverlay">
+        <div class="death-card">
+            <h1>💀 处决通知</h1>
+            <p id="deathReason">因重大医疗事故导致患者死亡，保卫科已将你就地枪决。</p>
+            <button class="reset-btn" onclick="location.reload()">重新投胎</button>
+        </div>
+    </div>
+
+<script>
+    // --- 全新升级版赛博内分泌作死病例库 ---
+    function generateRandomPatient() {
+        const cases = [
+            // 经典内分泌专病：糖尿病酮症酸中毒（把饮料当水喝）
+            { info: "男性，16岁。每天把可乐当水喝，近一周大量饮水、多尿、体重暴降10斤，呼气有烂苹果味，血糖仪爆表。", data: { glu: 28.5, hba1c: 12.5, crp: 8, k: 5.8, e2: 25, t: 1.5, alt: 30 }, treat: "胰岛素", type: "内分泌" },
+            
+            // 经典内分泌专病：甲亢危象
+            { info: "女性，32岁。突眼、手抖、心慌、多汗，体重持续下降，静息心率高达 145 次/分。", data: { ckMb: 15, k: 3.8, e2: 65, t: 0.2, alt: 25, glu: 6.5 }, treat: "甲亢", type: "内分泌" },
+            
+            // 经典内分泌专病：库欣综合征
+            { info: "男性，28岁。出现满月脸、水牛背、向心性肥胖，血糖明显升高，血压 160/100 mmHg。", data: { glu: 11.2, hba1c: 7.8, k: 4.0, e2: 40, t: 2.8, alt: 35 }, treat: "库欣", type: "内分泌" },
+            
+            // MtF 瞎吃雌激素导致肺栓塞
+            { info: "男性，19岁。自服网购戊酸雌二醇半年，近日突发胸闷、呼吸困难，咳血。超声示下肢深静脉血栓。", data: { dDimer: 8.2, alt: 28, e2: 625, t: 0.08, ckMb: 12, k: 4.1 }, treat: "抗凝", type: "mtf" },
+            
+            // MtF 吃激素导致暴发性肝衰竭
+            { info: "男性，22岁。自服大量螺内酯与雌二醇，近期全身黄染，尿液呈酱油色，剧烈肝区疼痛。", data: { alt: 580, ast: 620, dDimer: 0.2, e2: 450, t: 0.1, k: 5.2, ckMb: 10 }, treat: "保肝", type: "mtf" },
+            
+            // FtM 瞎吃雄激素导致严重电解质紊乱
+            { info: "女性，25岁。为了追求男性化，自购大量十一酸睾酮注射，今晨突发严重心悸、手脚麻木，心电图示T波高尖。", data: { k: 6.9, ckMb: 20, dDimer: 0.3, alt: 32, e2: 20, t: 12.0 }, treat: "电解质", type: "ftm" },
+            
+            // FtM 乱用激素导致精神分裂
+            { info: "女性，17岁。网络跟风购买含雄激素的所谓“变性药水”，近期情绪极度狂躁，伴有幻觉。", data: { e2: 35, t: 8.5, ckMb: 10, k: 4.0, dDimer: 0.1, alt: 30 }, treat: "精神科会诊", type: "ftm" },
+            
+            // 常规心梗
+            { info: "男性，17岁。半小时内狂灌3桶黑咖啡，感心慌、极度焦虑、手抖、胸口刺痛。", data: { ckMb: 35, k: 3.2, dDimer: 0.2, alt: 25, e2: 22, t: 2.0 }, treat: "心内科", type: "常规" },
+            
+            // 常规肝损
+            { info: "男性，24岁。服用增肌药物后，肝区疼痛，尿液深茶色，皮肤黄染。", data: { alt: 340, ast: 300, ckMb: 15, k: 4.2, dDimer: 0.2, e2: 15, t: 12.0 }, treat: "保肝", type: "常规" }
+        ];
+        return cases[Math.floor(Math.random() * cases.length)];
+    }
+
+    let currentCase = {};
+    let examList = [];
+    let reportHistory = "";
+    let ecgInterval;
+
+    // --- 检验生成（严格基于患者数据） ---
+    function generateReport(examName, caseData) {
+        let d = caseData.data;
+        let refs = {
+            '血常规': `WBC: ${(4 + Math.random()*6).toFixed(1)} (4.0-10.0) ×10⁹/L\nNEUT%: ${(55 + Math.random()*15).toFixed(1)} (50-70)%\nRBC: ${(4.5 + Math.random()).toFixed(1)} (4.0-5.5) ×10¹²/L\nPLT: ${(150 + Math.random()*150).toFixed(0)} (100-300) ×10⁹/L`,
+            '尿常规': `尿蛋白: 阴性\n尿糖: ${d.glu > 10 ? '阳性(+++)' : '阴性'}\n尿隐血/红细胞: 阴性\n白细胞: 阴性\n尿胆红素/尿酮体: 阴性`,
+            '肝功能': `ALT: ${d.alt.toFixed(1)} (0-40 U/L)\nAST: ${(d.ast || d.alt*0.8).toFixed(1)} (0-40 U/L)\nTBIL: ${(5 + Math.random()*10).toFixed(1)} (3.4-17.1 μmol/L)\nGGT: ${(20 + Math.random()*15).toFixed(1)} (0-50 U/L)`,
+            '肾功能': `Cr: ${(60 + Math.random()*20).toFixed(1)} (53-106 μmol/L)\nBUN: ${(3 + Math.random()*4).toFixed(1)} (2.9-8.2 mmol/L)\neGFR: >90 (≥90 ml/min)`,
+            '性激素六项': `E2: ${d.e2.toFixed(1)} (<38.95 pg/mL)\nT: ${d.t.toFixed(2)} (1.75-7.81 ng/mL)\nFSH: ${(1 + Math.random()*3).toFixed(1)} (1.27-19.26 mIU/mL)`,
+            'SHBG': `SHBG: ${(10 + Math.random()*20).toFixed(1)} (10-57 nmol/L)`,
+            '血糖与血脂': `GLU (空腹): ${d.glu || (3.9 + Math.random()*2).toFixed(1)} (3.9-6.1 mmol/L)\nTC: ${(2.8 + Math.random()*2).toFixed(1)} (2.8-5.2 mmol/L)`,
+            '糖化血红蛋白': `HbA1c: ${d.hba1c || (4 + Math.random()*2).toFixed(1)} (4-6 %)`,
+            '炎症三项': `CRP: ${d.crp || (0 + Math.random()*10).toFixed(1)} (0-10 mg/L)\nPCT: ${d.pct || (0.05 + Math.random()*0.1).toFixed(2)} (<0.15 ng/ml)\nESR: ${d.esr || (0 + Math.random()*20).toFixed(1)} (0-20 mm/h)`,
+            '凝血功能': `PT: ${(11 + Math.random()*2).toFixed(1)} (11-13 秒)\nD-Dimer: ${d.dDimer.toFixed(2)} (<0.5 mg/L)`,
+            '心肌酶谱': `CK-MB: ${d.ckMb.toFixed(1)} (<24 U/L)`,
+            '电解质': `K: ${d.k.toFixed(1)} (3.5-5.5 mmol/L)\nNa: ${(135 + Math.random()*10).toFixed(1)} (135-145 mmol/L)`
+        };
+        return refs[examName] || "检测中...";
+    }
+
+    const IMG_REFS = {
+        'CT': '颅脑CT未见明显异常。',
+        'DR': '胸部正位片示双肺纹理增粗。',
+        'MRI': '头颅MRI未见明显占位性病变。',
+        '彩超': '颈动脉超声未见明显异常。'
+    };
+
+    function loadPatient() {
+        currentCase = generateRandomPatient();
+        examList = [];
+        reportHistory = "";
+        document.getElementById('reportContainer').style.display = 'none';
+        document.getElementById('reportContainer').innerText = "";
+        document.getElementById('patientInfo').innerText = currentCase.info;
+        document.querySelectorAll('.exam-btn').forEach(btn => btn.classList.remove('done'));
+        if (ecgInterval) clearInterval(ecgInterval);
+        addLog(`[分诊台] 新患者已挂号。请仔细问诊。`);
+    }
+
+    function runExam(exam) {
+        if (examList.includes(exam)) return;
+        examList.push(exam);
+        let result = "";
+        if (exam === 'CT' || exam === 'DR' || exam === 'MRI' || exam === '彩超') {
+            result = `[影像科来信]\n${IMG_REFS[exam] || '检查中...'}`;
+        } else if (exam === '心电图') {
+            result = `[心电图室来信]\n窦性心律，部分导联ST-T改变。`;
+        } else {
+            result = `[医学检验科来信]\n${generateReport(exam, currentCase)}`;
+        }
+        reportHistory += `> 【${exam}】报告单\n${result}\n\n`;
+        document.getElementById('reportContainer').style.display = 'block';
+        document.getElementById('reportContainer').innerText = reportHistory;
+        if (exam === '心电图') {
+            document.getElementById('reportContainer').innerHTML += `<canvas id="ecgCanvas"></canvas>`;
+            drawECG();
+        }
+        document.querySelectorAll('.exam-btn').forEach(btn => {
+            if (btn.innerText.includes(exam)) btn.classList.add('done');
+        });
+    }
+
+    function drawECG() {
+        const canvas = document.getElementById('ecgCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+        if (ecgInterval) clearInterval(ecgInterval);
+        ecgInterval = setInterval(() => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.strokeStyle = '#22c55e';
+            ctx.lineWidth = 2;
+            let yBase = canvas.height / 2;
+            for (let i = 0; i < canvas.width; i+=2) {
+                let y = yBase + Math.sin(i * 0.08) * 10 + (i % 40 == 0 ? 15 : 0);
+                ctx.lineTo(i, y);
+            }
+            ctx.stroke();
+        }, 100);
+    }
+
+    function submitCase(action) {
+        let diagnosis = document.getElementById('diagnosisInput').value;
+        if (examList.length < 1) {
+            addLog(`[警告] 连检查都不开，你想空手套白狼治病？卫健委在看着你！`);
+            return;
+        }
+
+        addLog(`[诊断] 处方: ${diagnosis || '未填写'}`);
+        
+        let isRational = false;
+        let treatKeywords = ["保肝", "抗凝", "溶栓", "心内科", "精神科", "电解质", "补钾", "升压", "多巴胺", "神经外科", "抗生素", "胰岛素", "甲亢", "库欣"];
+        
+        for (let word of treatKeywords) {
+            if (diagnosis.includes(word)) {
+                if (currentCase.treat === "保肝" && word === "保肝") isRational = true;
+                else if (currentCase.treat === "抗凝" && (word === "抗凝" || word === "溶栓")) isRational = true;
+                else if (currentCase.treat === "心内科" && word === "心内科") isRational = true;
+                else if (currentCase.treat === "精神科会诊" && word === "精神科") isRational = true;
+                else if (currentCase.treat === "电解质" && (word === "电解质" || word === "补钾")) isRational = true;
+                else if (currentCase.treat === "升压" && (word === "升压" || word === "多巴胺")) isRational = true;
+                else if (currentCase.treat === "神经外科" && word === "神经外科") isRational = true;
+                else if (currentCase.treat === "抗生素" && word === "抗生素") isRational = true;
+                else if (currentCase.treat === "胰岛素" && word === "胰岛素") isRational = true;
+                else if (currentCase.treat === "甲亢" && word === "甲亢") isRational = true;
+                else if (currentCase.treat === "库欣" && word === "库欣") isRational = true;
+                break;
+            }
+        }
+
+        if (action === 'fail') {
+            triggerDeath("【保卫科】你直接让重症患者出院，严重医疗事故！立即执行死刑！");
+            return;
+        }
+
+        if (!isRational) {
+            let tip = currentCase.type === "mtf" ? "雌激素已经把他的肝功能彻底击穿，你却还在开补钾？" :
+                      currentCase.type === "ftm" ? "她的血钾已经高达6.9，你却在给她开雄激素？" :
+                      currentCase.type === "内分泌" ? "这是内分泌系统疾病，你的治疗方案完全不对症！" :
+                      "你的治疗方案与检验结果完全不符！";
+            triggerDeath(`【卫健委】警告：${tip} 卫健委已介入！你已被移送法办！`);
+            return;
+        }
+
+        addLog(`✔️ 治疗成功！患者已康复出院。`);
+        document.getElementById('diagnosisInput').value = "";
+        setTimeout(() => loadPatient(), 1500);
+    }
+
+    function triggerDeath(reason) {
+        if (ecgInterval) clearInterval(ecgInterval);
+        addLog(`[系统] 重大医疗事故！${reason}`);
+        document.getElementById('deathReason').innerText = reason;
+        document.getElementById('deathOverlay').style.display = 'flex';
+    }
+
+    function addLog(msg) {
+        const logBox = document.getElementById('log-box');
+        logBox.innerHTML += `<div>${msg}</div>`;
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    loadPatient();
+</script>
+</body>
+  </html>
